@@ -1,0 +1,25 @@
+build:
+  image: golang:1.5
+  commands:
+    - make deps
+    - make build
+    - make test
+
+publish:
+  docker:
+    username: drone
+    password: $$DOCKER_PASS
+    email: $$DOCKER_EMAIL
+    repo: plugins/drone-azure-web-apps
+    when:
+      branch: master
+
+plugin:
+  name: Azure Web Apps
+  desc: Deploys or updates a project on Azure Web Apps
+  type: deploy
+  image: plugins/drone-azure-web-apps
+  labels:
+    - azure
+    - web
+    - apps
