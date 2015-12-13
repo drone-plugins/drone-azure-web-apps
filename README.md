@@ -39,8 +39,7 @@ EOF
 Build the Docker container using `make`:
 
 ```sh
-make deps build
-docker build --rm=true -t plugins/drone-azure-web-apps .
+make deps build docker
 ```
 
 ### Example

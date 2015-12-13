@@ -1,8 +1,7 @@
 # Docker image for the Drone Azure Web Apps plugin
 #
 #     cd $GOPATH/src/github.com/drone-plugins/drone-azure-web-apps
-#     make deps build
-#     docker build --rm=true -t plugins/drone-azure-web-apps .
+#     make deps build docker
 
 FROM alpine:3.2
 
