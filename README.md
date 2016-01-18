@@ -1,20 +1,41 @@
 # drone-azure-web-apps
 
 [![Build Status](http://beta.drone.io/api/badges/drone-plugins/drone-azure-web-apps/status.svg)](http://beta.drone.io/drone-plugins/drone-azure-web-apps)
+[![Coverage Status](https://aircover.co/badges/drone-plugins/drone-azure-web-apps/coverage.svg)](https://aircover.co/drone-plugins/drone-azure-web-apps)
 [![](https://badge.imagelayers.io/plugins/drone-azure-web-apps:latest.svg)](https://imagelayers.io/?images=plugins/drone-azure-web-apps:latest 'Get your own badge on imagelayers.io')
 
-Drone plugin for deploying to Azure Web Apps
+Drone plugin to deploy or update a project on Azure Web Apps
 
-## Usage
+## Binary
+
+Build the binary using `make`:
+
+```
+make deps build
+```
+
+### Example
 
 ```sh
 ./drone-azure-web-apps <<EOF
 {
     "repo": {
         "clone_url": "git://github.com/drone/drone",
+        "owner": "drone",
+        "name": "drone",
         "full_name": "drone/drone"
     },
+    "system": {
+        "link_url": "https://beta.drone.io"
+    },
     "build": {
+        "number": 22,
+        "status": "success",
+        "started_at": 1421029603,
+        "finished_at": 1421029813,
+        "message": "Update the Readme",
+        "author": "johnsmith",
+        "author_email": "john.smith@gmail.com"
         "event": "push",
         "branch": "master",
         "commit": "436b7a6e2abaddfd35740527353e78a227ddcb2c",
@@ -25,10 +46,10 @@ Drone plugin for deploying to Azure Web Apps
         "path": "/drone/src/github.com/drone/drone"
     },
     "vargs": {
-      "username": "octocat",
-      "password": "my_password",
-      "site": "awesome",
-      "force": true
+        "username": "octocat",
+        "password": "my_password",
+        "site": "awesome",
+        "force": true
     }
 }
 EOF
@@ -36,10 +57,10 @@ EOF
 
 ## Docker
 
-Build the Docker container using `make`:
+Build the container using `make`:
 
-```sh
-make deps build docker
+```
+make deps docker
 ```
 
 ### Example
@@ -49,9 +70,21 @@ docker run -i plugins/drone-azure-web-apps <<EOF
 {
     "repo": {
         "clone_url": "git://github.com/drone/drone",
+        "owner": "drone",
+        "name": "drone",
         "full_name": "drone/drone"
     },
+    "system": {
+        "link_url": "https://beta.drone.io"
+    },
     "build": {
+        "number": 22,
+        "status": "success",
+        "started_at": 1421029603,
+        "finished_at": 1421029813,
+        "message": "Update the Readme",
+        "author": "johnsmith",
+        "author_email": "john.smith@gmail.com"
         "event": "push",
         "branch": "master",
         "commit": "436b7a6e2abaddfd35740527353e78a227ddcb2c",
@@ -62,10 +95,10 @@ docker run -i plugins/drone-azure-web-apps <<EOF
         "path": "/drone/src/github.com/drone/drone"
     },
     "vargs": {
-      "username": "octocat",
-      "password": "my_password",
-      "site": "awesome",
-      "force": true
+        "username": "octocat",
+        "password": "my_password",
+        "site": "awesome",
+        "force": true
     }
 }
 EOF
