@@ -4,7 +4,7 @@
 [![Coverage Status](https://aircover.co/badges/drone-plugins/drone-azure-web-apps/coverage.svg)](https://aircover.co/drone-plugins/drone-azure-web-apps)
 [![](https://badge.imagelayers.io/plugins/drone-azure-web-apps:latest.svg)](https://imagelayers.io/?images=plugins/drone-azure-web-apps:latest 'Get your own badge on imagelayers.io')
 
-Drone plugin to deploy or update a project on Azure Web Apps
+Drone plugin to deploy or update a project on Azure Web Apps. For the usage information and a listing of the available options please take a look at [the docs](DOCS.md).
 
 ## Binary
 
