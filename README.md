@@ -10,100 +10,40 @@
 
 Drone plugin to deploy or update a project on Azure Web Apps. For the usage information and a listing of the available options please take a look at [the docs](DOCS.md).
 
-## Binary
+## Build
 
-Build the binary using `make`:
+Build the binary with the following commands:
 
 ```
-make deps build
-```
+export GOOS=linux
+export GOARCH=amd64
+export CGO_ENABLED=0
+export GO111MODULE=on
 
-### Example
-
-```sh
-./drone-azure-web-apps <<EOF
-{
-    "repo": {
-        "clone_url": "git://github.com/drone/drone",
-        "owner": "drone",
-        "name": "drone",
-        "full_name": "drone/drone"
-    },
-    "system": {
-        "link_url": "https://beta.drone.io"
-    },
-    "build": {
-        "number": 22,
-        "status": "success",
-        "started_at": 1421029603,
-        "finished_at": 1421029813,
-        "message": "Update the Readme",
-        "author": "johnsmith",
-        "author_email": "john.smith@gmail.com",
-        "event": "push",
-        "branch": "master",
-        "commit": "436b7a6e2abaddfd35740527353e78a227ddcb2c",
-        "ref": "refs/heads/master"
-    },
-    "workspace": {
-        "root": "/drone/src",
-        "path": "/drone/src/github.com/drone/drone"
-    },
-    "vargs": {
-        "username": "octocat",
-        "password": "my_password",
-        "site": "awesome",
-        "force": true
-    }
-}
-EOF
+go test -cover ./...
+go build -v -a -tags netgo -o release/linux/amd64/drone-azure-web-apps
 ```
 
 ## Docker
 
-Build the container using `make`:
+Build the Docker image with the following commands:
 
 ```
-make deps docker
+docker build \
+  --label org.label-schema.build-date=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+  --label org.label-schema.vcs-ref=$(git rev-parse --short HEAD) \
+  --file docker/Dockerfile.linux.amd64 --tag plugins/azure-web-apps .
 ```
 
-### Example
+### Usage
 
-```sh
-docker run -i plugins/drone-azure-web-apps <<EOF
-{
-    "repo": {
-        "clone_url": "git://github.com/drone/drone",
-        "owner": "drone",
-        "name": "drone",
-        "full_name": "drone/drone"
-    },
-    "system": {
-        "link_url": "https://beta.drone.io"
-    },
-    "build": {
-        "number": 22,
-        "status": "success",
-        "started_at": 1421029603,
-        "finished_at": 1421029813,
-        "message": "Update the Readme",
-        "author": "johnsmith",
-        "author_email": "john.smith@gmail.com"
-        "event": "push",
-        "branch": "master",
-        "commit": "436b7a6e2abaddfd35740527353e78a227ddcb2c",
-        "ref": "refs/heads/master"
-    },
-    "workspace": {
-        "root": "/drone/src",
-        "path": "/drone/src/github.com/drone/drone"
-    },
-    "vargs": {
-        "username": "octocat",
-        "password": "my_password",
-        "site": "awesome",
-        "force": true
-    }
-}
-EOF
+```
+docker run --rm \
+  -e PLUGIN_USERNAME=octocat \
+  -e PLUGIN_PASSWORD=p455w0rd \
+  -e PLUGIN_SITE=awesome \
+  -e PLUGIN_FORCE=true \
+  -v $(pwd):$(pwd) \
+  -w $(pwd) \
+  plugins/azure-web-apps
 ```
