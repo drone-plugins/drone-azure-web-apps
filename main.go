@@ -1,126 +1,106 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"os"
-	"os/exec"
-	"strings"
 
-	"github.com/drone-plugins/drone-git-push/repo"
-	"github.com/drone/drone-go/drone"
-	"github.com/drone/drone-go/plugin"
+	"github.com/urfave/cli"
 )
 
 var (
-	buildCommit string
+	version = "0.0.0"
+	build   = "0"
 )
 
 func main() {
-	fmt.Printf("Drone Azure Web Apps Plugin built from %s\n", buildCommit)
-
-	workspace := drone.Workspace{}
-	repo := drone.Repo{}
-	build := drone.Build{}
-	vargs := Params{}
-
-	plugin.Param("workspace", &workspace)
-	plugin.Param("repo", &repo)
-	plugin.Param("build", &build)
-	plugin.Param("vargs", &vargs)
-	plugin.MustParse()
-
-	if len(vargs.Username) == 0 {
-		fmt.Println("Please provide an username")
-
-		os.Exit(1)
-		return
+	app := cli.NewApp()
+	app.Name = "azure web apps plugin"
+	app.Usage = "azure web apps plugin"
+	app.Action = run
+	app.Version = fmt.Sprintf("%s+%s", version, build)
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:   "username",
+			Usage:  "username",
+			EnvVar: "PLUGIN_USERNAME,AZURE_WEB_APPS_USERNAME",
+		},
+		cli.StringFlag{
+			Name:   "password",
+			Usage:  "password",
+			EnvVar: "PLUGIN_PASSWORD,AZURE_WEB_APPS_PASSWORD",
+		},
+		cli.StringFlag{
+			Name:   "site",
+			Usage:  "site",
+			EnvVar: "PLUGIN_SITE,AZURE_WEB_APPS_SITE",
+		},
+		cli.StringFlag{
+			Name:   "slot",
+			Usage:  "slot",
+			EnvVar: "PLUGIN_SLOT,AZURE_WEB_APPS_SLOT",
+		},
+		cli.BoolFlag{
+			Name:   "force",
+			Usage:  "force",
+			EnvVar: "PLUGIN_FORCE",
+		},
+		cli.BoolFlag{
+			Name:   "commit",
+			Usage:  "commit",
+			EnvVar: "PLUGIN_COMMIT",
+		},
+		cli.StringFlag{
+			Name:   "commit.author.name",
+			Usage:  "git author name",
+			EnvVar: "DRONE_COMMIT_AUTHOR",
+		},
+		cli.StringFlag{
+			Name:   "commit.author.email",
+			Usage:  "git author email",
+			EnvVar: "DRONE_COMMIT_AUTHOR_EMAIL",
+		},
+		cli.StringFlag{
+			Name:   "repo.name",
+			Usage:  "repository name",
+			EnvVar: "DRONE_REPO_NAME",
+		},
 	}
 
-	if len(vargs.Password) == 0 {
-		fmt.Println("Please provide a password")
-
-		os.Exit(1)
-		return
-	}
-
-	if len(vargs.Site) == 0 {
-		vargs.Site = repo.Name
-	}
-
-	if len(vargs.Slot) == 0 {
-		vargs.Slot = vargs.Site
-	}
-
-	err := run(&workspace, &build, &vargs)
-
-	if err != nil {
-		fmt.Println(err)
-
-		os.Exit(1)
-		return
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
 	}
 }
 
-func run(workspace *drone.Workspace, build *drone.Build, vargs *Params) error {
-	repo.GlobalName(build).Run()
-	repo.GlobalUser(build).Run()
-
-	defer func() {
-		execute(
-			repo.RemoteRemove(
-				"deploy"),
-			workspace)
-	}()
-
-	cmd := repo.RemoteAdd(
-		"deploy",
-		remote(vargs))
-
-	if err := execute(cmd, workspace); err != nil {
-		return err
+func run(c *cli.Context) error {
+	plugin := Plugin{
+		Commit: Commit{
+			Author: Author{
+				Name:  c.String("commit.author.name"),
+				Email: c.String("commit.author.email"),
+			},
+		},
+		Repo: Repo{
+			Name: c.String("repo.name"),
+		},
+		Config: Config{
+			Username: c.String("username"),
+			Password: c.String("password"),
+			Site:     c.String("site"),
+			Slot:     c.String("slot"),
+			Force:    c.Bool("force"),
+			Commit:   c.Bool("commit"),
+		},
 	}
 
-	if vargs.Commit {
-		if err := execute(repo.ForceAdd(), workspace); err != nil {
-			return err
-		}
-
-		if err := execute(repo.ForceCommit(), workspace); err != nil {
-			return err
-		}
+	if plugin.Config.Username == "" {
+		return errors.New("Missing username")
 	}
 
-	cmd = repo.RemotePush(
-		"deploy",
-		"master",
-		vargs.Force)
-
-	if err := execute(cmd, workspace); err != nil {
-		return err
+	if plugin.Config.Password == "" {
+		return errors.New("Missing password")
 	}
 
-	return nil
-}
-
-func remote(vargs *Params) string {
-	return fmt.Sprintf(
-		"https://%s:%s@%s.scm.azurewebsites.net:443/%s.git",
-		vargs.Username,
-		vargs.Password,
-		vargs.Slot,
-		vargs.Site)
-}
-
-func execute(cmd *exec.Cmd, workspace *drone.Workspace) error {
-	trace(cmd)
-
-	cmd.Dir = workspace.Path
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-
-	return cmd.Run()
-}
-
-func trace(cmd *exec.Cmd) {
-	fmt.Println("$", strings.Join(cmd.Args, " "))
+	return plugin.Exec()
 }
