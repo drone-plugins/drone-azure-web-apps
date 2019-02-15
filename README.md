@@ -8,27 +8,26 @@
 [![Go Doc](https://godoc.org/github.com/drone-plugins/drone-azure-web-apps?status.svg)](http://godoc.org/github.com/drone-plugins/drone-azure-web-apps)
 [![Go Report](https://goreportcard.com/badge/github.com/drone-plugins/drone-azure-web-apps)](https://goreportcard.com/report/github.com/drone-plugins/drone-azure-web-apps)
 
-Drone plugin to deploy or update a project on Azure Web Apps. For the usage information and a listing of the available options please take a look at [the docs](DOCS.md).
+Drone plugin to deploy or update a project on Azure Web Apps. For the usage information and a listing of the available options please take a look at [the docs](http://plugins.drone.io/drone-plugins/drone-azure-web-apps/).
 
 ## Build
 
-Build the binary with the following commands:
+Build the binary with the following command:
 
-```
+```console
 export GOOS=linux
 export GOARCH=amd64
 export CGO_ENABLED=0
 export GO111MODULE=on
 
-go test -cover ./...
 go build -v -a -tags netgo -o release/linux/amd64/drone-azure-web-apps
 ```
 
 ## Docker
 
-Build the Docker image with the following commands:
+Build the Docker image with the following command:
 
-```
+```console
 docker build \
   --label org.label-schema.build-date=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
   --label org.label-schema.vcs-ref=$(git rev-parse --short HEAD) \
@@ -37,7 +36,7 @@ docker build \
 
 ### Usage
 
-```
+```console
 docker run --rm \
   -e PLUGIN_USERNAME=octocat \
   -e PLUGIN_PASSWORD=p455w0rd \
