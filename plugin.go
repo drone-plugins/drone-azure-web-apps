@@ -60,7 +60,7 @@ func (p Plugin) Exec() error {
 		return err
 	}
 
-	defer p.execute(repo.RemoteRemove("deploy"))
+	defer p.execute(repo.RemoteRemove("deploy")) // nolint: errcheck
 
 	if p.Config.Commit {
 		if err := p.execute(repo.ForceAdd()); err != nil {
