@@ -8,5 +8,5 @@ LABEL maintainer="Drone.IO Community <drone-dev@googlegroups.com>" `
 
 # TODO: install required tools
 
-ADD release\drone-azure-web-apps.exe c:\drone-azure-web-apps.exe
+ADD release/windows/amd64/drone-azure-web-apps.exe c:\drone-azure-web-apps.exe
 ENTRYPOINT [ "c:\\drone-azure-web-apps.exe" ]
